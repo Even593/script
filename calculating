@@ -1,9 +1,21 @@
 #!/bin/bash
 
+# 文件名和临时文件目录
+input_file="sample2.tsv"
+temp_folder="country_data"
+
+# 创建一个临时目录来存储每个国家的数据
+mkdir -p $temp_folder
+
+# 读取国家名称，并为每个国家创建一个文件
+awk -F '\t' 'NR > 1 {print > ("'${temp_folder}'/" $1 ".tsv")}' $input_file
+
+# 你现在有了一个文件夹，包含按国家名命名的文件，每个文件包含对应国家的所有数据
+
+# 遍历每个国家的文件，并使用 Python 脚本计算相关性
+for country_file in ${temp_folder}/*.tsv; do
+    echo "Processing: $country_file"
+    python calc_correlation.py "$country_file"
+done
+
 #awk -f correlation.awk -v COL1=4 COL2=8 sample2.tsv
-input=$1
-awk -F'\t' 'NR > 1 { gdp[$1] += $4 } END { for (c in gdp) print c, gdp[c] }' "$input" > gdp_data.txt
-#countries=$(awk -F'\t' '{print $1}' $1 | sort -u) 
-#for country in $countries; do
-    #awk -v country="$country" -F'\t' '$1 == country && $4 ~ /^[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/ {print $4}' "$input" > gdp_data.txt
-#done    

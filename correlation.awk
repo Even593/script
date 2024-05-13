@@ -20,6 +20,7 @@ NR>1{
 }
 
 END {
+    
     # 计算分母的部分
     denominator = sqrt((n * sum_x2 - sum_x * sum_x) * (n * sum_y2 - sum_y * sum_y))
     
