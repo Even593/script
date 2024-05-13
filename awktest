@@ -1,0 +1,2 @@
+#!/bin/bash
+awk -f awk1.awk 0.txt 

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#awk -f correlation.awk -v COL1=4 COL2=8 sample2.tsv
+input=$1
+awk -F'\t' 'NR > 1 { gdp[$1] += $4 } END { for (c in gdp) print c, gdp[c] }' "$input" > gdp_data.txt
+#countries=$(awk -F'\t' '{print $1}' $1 | sort -u) 
+#for country in $countries; do
+    #awk -v country="$country" -F'\t' '$1 == country && $4 ~ /^[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/ {print $4}' "$input" > gdp_data.txt
+#done    

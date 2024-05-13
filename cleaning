@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# 检查输入文件数量是否正确
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 file1 file2 file3"
+    exit 1
+fi
+
+check_rows(){
+    local count1=$(wc -l < "$1")
+    local count2=$(wc -l < "$2")
+    local count3=$(wc -l < "$3")
+    local min=$count1
+    local minfile=$1
+
+    if [ $count2 -lt $min ]; then
+        min=$count2
+        minfile=$2
+    fi 
+
+    if [ $count3 -lt $min ]; then
+        min=$count3
+        minfile=$3
+    fi
+
+    echo $minfile
+}
+
+minfile=$(check_rows "$1" "$2" "$3")
+echo "The file with the fewest rows is $minfile"
+awk -F'\t' '$2 != "" {print $1"\t"$2"\t"$3"\t"}' $minfile > 123.txt #生成最少行数的文件，并去除第二列为空的行
+#gdp
+awk 'BEGIN {FS=OFS="\t"}
+
+# 读取并存储第一个文件的第一和第二列
+FNR==NR {
+    keys[$1,$2,$3] = 1;
+    next;
+}
+
+# 处理第二个文件，查找匹配并输出第五列
+($1,$2,$3) in keys {
+    print $1, $2, $3, $5;
+}' 123.txt gdp-vs-happiness.tsv > temp0.txt
+#Population
+awk 'BEGIN {FS=OFS="\t"}
+
+# 读取并存储第一个文件的第一和第二列
+FNR==NR {
+    keys[$1,$2,$3] = $4;
+    next;
+}
+
+# 处理第二个文件，查找匹配并输出第五列
+($1,$2,$3) in keys {
+    print $1, $2, $3, keys[$1, $2, $3], $6;
+}' temp0.txt gdp-vs-happiness.tsv > temp1.txt
+#homicide-rate
+awk 'BEGIN {FS=OFS="\t"}
+
+# 读取并存储第一个文件的第一和第二列
+FNR==NR {
+    keys[$1,$2,$3] = $1 OFS $2 OFS $3 OFS $4 OFS $5;
+    next;
+}
+
+# 处理第二个文件，查找匹配并输出第五列
+($1,$2,$3) in keys {
+    print keys[$1,$2,$3], $4;
+}' temp1.txt homicide-rate-unodc.tsv > temp2.txt
+
+#Life expectancy
+awk 'BEGIN {FS=OFS="\t"}
+FNR==NR {
+    keys[$1,$2,$3] = $1 OFS $2 OFS $3 OFS $4 OFS $5 OFS $6;
+    next;
+}
+($1,$2,$3) in keys {
+    print keys[$1,$2,$3], $4;
+}' temp2.txt life-satisfaction-vs-life-expectancy.tsv > temp3.txt
+
+#Cantril Ladder
+awk 'BEGIN {FS=OFS="\t"}
+FNR==NR {
+    keys[$1,$2,$3] = $1 OFS $2 OFS $3 OFS $4 OFS $5 OFS $6 OFS $7;
+    next;
+}
+($1,$2,$3) in keys && $4 != ""{
+    print keys[$1,$2,$3], $4;
+}' temp3.txt gdp-vs-happiness.tsv > temp4.tsv
+
+
+
+
+#awk -v col=6 -f colunm.awk 123.txt gdp-vs-happiness.tsv > temp2.txt
+#awk -v col=4 -f colunm.awk 123.txt homicide-rate-unodc.tsv > temp3.txt
+#awk -v col=4 -f colunm.awk 123.txt life-satisfaction-vs-life-expectancy.tsv > temp4.txt
+#awk -F"\t" '{print $5}' gdp-vs-happiness.tsv > temp1.txt
+
