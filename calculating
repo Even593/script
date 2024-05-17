@@ -3,19 +3,40 @@
 # 文件名和临时文件目录
 input_file="sample2.tsv"
 temp_folder="country_data"
+country_count=0
 
 # 创建一个临时目录来存储每个国家的数据
 mkdir -p $temp_folder
 
 # 读取国家名称，并为每个国家创建一个文件
-awk -F '\t' 'NR > 1 {print > ("'${temp_folder}'/" $1 ".tsv")}' $input_file
+awk -F '\t' 'NR > 1 && $8 != "" {print > ("'${temp_folder}'/" $1 ".tsv")}' $input_file
 
 # 你现在有了一个文件夹，包含按国家名命名的文件，每个文件包含对应国家的所有数据
 
-# 遍历每个国家的文件，并使用 Python 脚本计算相关性
+# 遍历每个国家的文件
 for country_file in ${temp_folder}/*.tsv; do
-    echo "Processing: $country_file"
-    python calc_correlation.py "$country_file"
+    awk -f correlation.awk -v COL1=4 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_GDP.txt
+    awk -f correlation.awk -v COL1=5 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Pop.txt
+    awk -f correlation.awk -v COL1=6 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Homi.txt
+    awk -f correlation.awk -v COL1=7 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Lif.txt
+    #country_count=$((country_count+1))
 done
+
+awk -f mean.awk ${temp_folder}/correlation_results_GDP.txt > value.txt
+awk -f mean.awk ${temp_folder}/correlation_results_Pop.txt >> value.txt
+awk -f mean.awk ${temp_folder}/correlation_results_Homi.txt >> value.txt
+awk -f mean.awk ${temp_folder}/correlation_results_Lif.txt >> value.txt
+
+awk -f compare.awk value.txt >> value.txt
+
+# 输出结果
+cat value.txt
+
+
+
+
+# 删除临时文件夹
+#rm -r $temp_folder
+#rm -r value.txt
 
 #awk -f correlation.awk -v COL1=4 COL2=8 sample2.tsv

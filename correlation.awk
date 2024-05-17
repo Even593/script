@@ -26,10 +26,10 @@ END {
     
     # 如果分母为零，则不能计算相关系数
     if (denominator == 0) {
-        print "Error: Denominator is zero, correlation cannot be computed."
+        print "null"
     } else {
         # 计算相关系数
         correlation = (n * sum_xy - sum_x * sum_y) / denominator
-        print "Correlation coefficient (r):", correlation
+        print correlation
     }
 }

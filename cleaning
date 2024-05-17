@@ -28,6 +28,7 @@ check_rows(){
 
 minfile=$(check_rows "$1" "$2" "$3")
 echo "The file with the fewest rows is $minfile"
+
 awk -F'\t' '$2 != "" {print $1"\t"$2"\t"$3"\t"}' $minfile > 123.txt #生成最少行数的文件，并去除第二列为空的行
 #gdp
 awk 'BEGIN {FS=OFS="\t"}
@@ -90,7 +91,8 @@ FNR==NR {
 }' temp3.txt gdp-vs-happiness.tsv > temp4.tsv
 
 
-
+#删除临时文件
+rm 123.txt temp0.txt temp1.txt temp2.txt temp3.txt
 
 #awk -v col=6 -f colunm.awk 123.txt gdp-vs-happiness.tsv > temp2.txt
 #awk -v col=4 -f colunm.awk 123.txt homicide-rate-unodc.tsv > temp3.txt
