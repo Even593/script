@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 检查输入文件数量是否正确
+# check if the number of arguments is correct
 if [ $# -ne 3 ]; then
     echo "Usage: $0 file1 file2 file3"
     exit 1
@@ -27,37 +27,39 @@ check_rows(){
 }
 
 minfile=$(check_rows "$1" "$2" "$3")
-echo "The file with the fewest rows is $minfile"
+#echo "The file with the fewest rows is $minfile"
 
-awk -F'\t' '$2 != "" {print $1"\t"$2"\t"$3"\t"}' $minfile > min.txt #生成最少行数的文件，并去除第二列为空的行
-#gdp
+awk -F'\t' '$2 != "" {print $1"\t"$2"\t"$3"\t"}' $minfile > min.txt 
+# Generate the file with the fewest rows and remove rows where the second column is empty
+
+#add gdp column
 awk 'BEGIN {FS=OFS="\t"}
 
-# 读取并存储第一个文件的第一和第二列
+# Read and store the first and second columns of the first file
 FNR==NR {
     keys[$1,$2,$3] = 1;
     next;
 }
 
-# 处理第二个文件，查找匹配并输出第五列
+# Process the second file, find matches and output the GDP column
 ($1,$2,$3) in keys {
     if ($5) {
-        print $1, $2, $3, $5;  # Print matching records with the fifth column
+        print $1, $2, $3, $5;  # Print matching records with the GDP column
     } else {
-        print $1, $2, $3, $5;  # Print matching records with the fifth column
+        print $1, $2, $3, $5;  # Print matching records with the GDP column
         print $2, $3, "gdp lost" > "/dev/stderr";  # Print $2 and $3 to stderr if $5 does not exist
     }
 }' min.txt gdp-vs-happiness.tsv > temp0.txt
-#Population
-awk 'BEGIN {FS=OFS="\t"}
 
-# 读取并存储第一个文件的第一和第二列
+#add Population column
+awk 'BEGIN {FS=OFS="\t"}
+# store columns as keys
 FNR==NR {
     keys[$1,$2,$3] = $4;
     next;
 }
 
-# 处理第二个文件，查找匹配并输出第五列
+# add Population column
 ($1,$2,$3) in keys {
     if ($6) {
         print $1, $2, $3, keys[$1, $2, $3], $6;
@@ -67,16 +69,17 @@ FNR==NR {
     }
 
 }' temp0.txt gdp-vs-happiness.tsv > temp1.txt
+
 #homicide-rate
 awk 'BEGIN {FS=OFS="\t"}
 
-# 读取并存储第一个文件的第一和第二列
+# store columns as keys
 FNR==NR {
     keys[$1,$2,$3] = $1 OFS $2 OFS $3 OFS $4 OFS $5;
     next;
 }
 
-# 处理第二个文件，查找匹配并输出第五列
+# add homicide-rate column and check if it is empty
 ($1,$2,$3) in keys {
    if ($4>0) {
         print keys[$1,$2,$3], $4;
@@ -118,11 +121,6 @@ FNR==NR {
 }' temp3.txt gdp-vs-happiness.tsv > temp4.tsv
 
 cat temp4.tsv
-#删除临时文件
-rm min.txt temp0.txt temp1.txt temp2.txt temp3.txt
-
-#awk -v col=6 -f colunm.awk 123.txt gdp-vs-happiness.tsv > temp2.txt
-#awk -v col=4 -f colunm.awk 123.txt homicide-rate-unodc.tsv > temp3.txt
-#awk -v col=4 -f colunm.awk 123.txt life-satisfaction-vs-life-expectancy.tsv > temp4.txt
-#awk -F"\t" '{print $5}' gdp-vs-happiness.tsv > temp1.txt
+#remove temp files
+rm min.txt temp0.txt temp1.txt temp2.txt temp3.txt temp4.tsv
 

@@ -1,42 +1,47 @@
 #!/bin/bash
 
-# 文件名和临时文件目录
-input_file="sample2.tsv"
+# check if the number of arguments is correct
+if (( $# != 1 )); then
+    echo "Usage: $0 <input_file>"
+    exit 1
+fi
+input_file=$1
 temp_folder="country_data"
 country_count=0
 
-# 创建一个临时目录来存储每个国家的数据
+# create a temporary folder to store data for each country
 mkdir -p $temp_folder
 
-# 读取国家名称，并为每个国家创建一个文件
+# read the header of the input file
 awk -F '\t' 'NR > 1 && $8 != "" {print > ("'${temp_folder}'/" $1 ".tsv")}' $input_file
 
-# 你现在有了一个文件夹，包含按国家名命名的文件，每个文件包含对应国家的所有数据
 
-# 遍历每个国家的文件
+# for each country, calculate the correlation between the Cantril ladder score and each of the other columns
 for country_file in ${temp_folder}/*.tsv; do
-    awk -f correlation.awk -v COL1=4 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_GDP.txt
-    awk -f correlation.awk -v COL1=5 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Pop.txt
-    awk -f correlation.awk -v COL1=6 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Homi.txt
-    awk -f correlation.awk -v COL1=7 -v COL2=8 "$country_file" >> ${temp_folder}/correlation_results_Lif.txt
+    awk -f correlation.awk -v COL1=4 -v COL2=8 "$country_file" >> ${temp_folder}/GDP_with_Cantril_ladder.txt
+    awk -f correlation.awk -v COL1=5 -v COL2=8 "$country_file" >> ${temp_folder}/Population_with_Cantril_ladder.txt
+    awk -f correlation.awk -v COL1=6 -v COL2=8 "$country_file" >> ${temp_folder}/Homicide_Rate_with_Cantril_ladder.txt
+    awk -f correlation.awk -v COL1=7 -v COL2=8 "$country_file" >> ${temp_folder}/Life_Expectancy_with_Cantril_ladder.txt
     #country_count=$((country_count+1))
 done
 
-awk -f mean.awk ${temp_folder}/correlation_results_GDP.txt > value.txt
-awk -f mean.awk ${temp_folder}/correlation_results_Pop.txt >> value.txt
-awk -f mean.awk ${temp_folder}/correlation_results_Homi.txt >> value.txt
-awk -f mean.awk ${temp_folder}/correlation_results_Lif.txt >> value.txt
+# calculate the mean of the correlation values for each predictor
+awk -f mean.awk ${temp_folder}/GDP_with_Cantril_ladder.txt > value.txt
+awk -f mean.awk ${temp_folder}/Population_with_Cantril_ladder.txt >> value.txt
+awk -f mean.awk ${temp_folder}/Homicide_Rate_with_Cantril_ladder.txt >> value.txt
+awk -f mean.awk ${temp_folder}/Life_Expectancy_with_Cantril_ladder.txt >> value.txt
 
+# compare the absolute values of the correlation values for each predictor
 awk -f compare.awk value.txt >> value.txt
 
-# 输出结果
+# print the result on terminal
 cat value.txt
 
 
 
 
-# 删除临时文件夹
-#rm -r $temp_folder
-#rm -r value.txt
+# remove the temporary folder
+rm -r $temp_folder
+rm -r value.txt
 
 #awk -f correlation.awk -v COL1=4 COL2=8 sample2.tsv

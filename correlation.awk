@@ -1,5 +1,5 @@
 BEGIN {
-    FS = "\t"  # 设置输入字段分隔符为制表符
+    FS = "\t" 
     sum_x = 0
     sum_y = 0
     sum_xy = 0
@@ -8,8 +8,8 @@ BEGIN {
     n = 0
 }
 NR>1{
-    x = $COL1  # 假设X在第一列
-    y = $COL2  # 假设Y在第二列
+    x = $COL1  # 
+    y = $COL2  # set default value
     if (x == "" || y == "") {next}
     sum_x += x
     sum_y += y
@@ -21,14 +21,14 @@ NR>1{
 
 END {
     
-    # 计算分母的部分
+    # calculate denominator
     denominator = sqrt((n * sum_x2 - sum_x * sum_x) * (n * sum_y2 - sum_y * sum_y))
     
-    # 如果分母为零，则不能计算相关系数
+    # if error 
     if (denominator == 0) {
         print "null"
     } else {
-        # 计算相关系数
+        # calculate correlation
         correlation = (n * sum_xy - sum_x * sum_y) / denominator
         print correlation
     }

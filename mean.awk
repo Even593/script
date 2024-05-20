@@ -5,7 +5,7 @@ BEGIN {
 }
 
 {
-    if ($1 ~ /^-?[0-9]+(\.[0-9]+)?$/) {  # 检查第一列是否为数字，包括负数
+    if ($1 ~ /^-?[0-9]+(\.[0-9]+)?$/) {  # check input is valid
         #abs_v = ($1 < 0) ? -$1 : $1
         line_count++
         sum += $1
@@ -15,9 +15,8 @@ BEGIN {
 END {
     if (line_count > 0) {
         average = sum / line_count
-        #print "行数: " line_count
-        print average 
+        print FILENAME, average 
     } else {
-        print null
+        print "invalid file"
     }
 }
