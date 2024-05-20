@@ -12,6 +12,7 @@ BEGIN {
         if (abs_value > max_abs_value) {
             max_abs_value = abs_value
             max_abs_line = NR  # 记录当前行号
+            origin_value = $1
         }
     }
 }
@@ -28,7 +29,7 @@ END {
             info = "Life"
         }
 
-        print "绝对值最大的数: " info, max_abs_value
+        print "Mean correlation of Homicide Rate with Cantril ladder is: " info, origin_value
     } else {
         print "文件为空或没有有效的数字"
     }

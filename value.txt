@@ -1,5 +1,5 @@
-0.475905
-0.706285
+0.162058
+-0.706285
 0.417102
 0.377937
-绝对值最大的数: Pop 0.706285
+Mean correlation of Homicide Rate with Cantril ladder is: Pop -0.706285
