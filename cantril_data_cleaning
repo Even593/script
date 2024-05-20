@@ -5,7 +5,7 @@ if [ $# -ne 3 ]; then
     echo "Usage: $0 file1 file2 file3"
     exit 1
 fi
-
+#
 check_rows(){
     local count1=$(wc -l < "$1")
     local count2=$(wc -l < "$2")
